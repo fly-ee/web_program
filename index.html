@@ -27,7 +27,6 @@
 		</style>
 		<script>
 			const div = document.getElementById('programs');
-			let locked = false; // prevent the programs tab from collapsing when a program is running
 			function fold() {
 				let style = getComputedStyle(div);
 				if (style.height == '30px' && !locked) {
@@ -35,14 +34,7 @@
 				} else if (style.height == '550px' && !locked) {
 					div.style.height = '30px';
 				};
-				if (locked) {
-					alert("cannot run other programs while another program is running.")
-				};
 			};
-
-			function forceClose() {
-				div.style.height = '30px';
-			}
 		</script>
 		<button style="width:170px;height:30px;margin-left:85px;" onClick="fold()">expand/collapse</button>
 		<hr id="seperator" style="background-color:#9d9d86;border-top-color:#bbbba4;border-right-color:#bbbba4;border-bottom-color:#9d9d86;border-left-color:#9d9d86;border-width:2px;border-style:solid;">
@@ -167,7 +159,7 @@
 								};
 								frames.push(rgbFrame);
 								y = 0;
-								};*/
+								};*/ // deprecated
 								if (i >= (arr.length - o)) {
 									i = 0;
 									o = 0;
