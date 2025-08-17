@@ -4,7 +4,7 @@
 	<title>e</title>
 	<h3>some visualizer thing</h3>
 	<meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=0.5">
+	<meta name="viewport" content="width=device-width,initial-scale=0.5">
 </head>
 
 <body style="background-color:#a0a0a0;">
@@ -29,9 +29,9 @@
 			const div = document.getElementById('programs');
 			function fold() {
 				let style = getComputedStyle(div);
-				if (style.height == '30px' && !locked) {
+				if (style.height == '30px') {
 					div.style.height = '550px';
-				} else if (style.height == '550px' && !locked) {
+				} else if (style.height == '550px') {
 					div.style.height = '30px';
 				};
 			};
@@ -197,5 +197,47 @@
 			</script>
 		</div>
 	</div>
+	<style>
+		button {
+			background-color: #acac95;
+			border-top-color: #bbbba4;
+			border-right-color: #bbbba4;
+			border-bottom-color: #9d9d86;
+			border-left-color: #9d9d86;
+			border-width: 2px;
+			border-style: solid;
+			font-size: 20px;
+		}
+		span {
+			font-family: Arial;
+			font-size: 20px;
+		}
+		input {
+			background-color: #acac95;
+			border-top-color: #bbbba4;
+			border-right-color: #bbbba4;
+			border-bottom-color: #9d9d86;
+			border-left-color: #9d9d86;
+			border-width: 2px;
+			border-style: solid;
+			font-size: 17px;
+		}
+		progress {
+			-webkit-appearance: none;
+			appearance: none;
+			border-top-color: #bbbba4;
+			border-right-color: #bbbba4;
+			border-bottom-color: #9d9d86;
+			border-left-color: #9d9d86;
+			border-width: 2px;
+			border-style: solid;
+		}
+		progress::-webkit-progress-bar {
+			background: #acac95;
+		}
+		progress::-webkit-progress-value {
+			background: #0050ff;
+		}
+	</style>
 </body>
 </html>
