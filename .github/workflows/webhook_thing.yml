@@ -19,26 +19,26 @@ jobs:
 
       - name: send the message e
         run: |
-AUTHOR_ESCAPED=$(echo "$AUTHOR" | jq -R .)
-MESSAGE_ESCAPED=$(echo "$MESSAGE" | jq -R .)
-PATCH_TRUNCATED=$(echo "$PATCH" | head -c 1900 | jq -Rs .)
+          AUTHOR_ESCAPED=$(echo "$AUTHOR" | jq -R .)
+          MESSAGE_ESCAPED=$(echo "$MESSAGE" | jq -R .)
+          PATCH_TRUNCATED=$(echo "$PATCH" | head -c 1900 | jq -Rs .)
 
-curl -H "Content-Type: application/json" \
--X POST \
-  -d "{
-    \"username\": \"updates i guess\",
-    \"embeds\": [{
-      \"title\": \"New push to ${GITHUB_REPOSITORY}\",
-      \"description\": \"**Commit:** [$COMMIT_ID](https://github.com/${GITHUB_REPOSITORY}/commit/$COMMIT_ID)\\n**Author:** ${AUTHOR_ESCAPED} \\n**Message:** ${MESSAGE_ESCAPED}\",
-      \"color\": 7506394,
-      \"fields\": [
-        {
-          \"name\": \"Diff\",
-          \"value\": \"\`\`\`diff\n$(echo $PATCH | head -c 1900)\n\`\`\`\"
-        }
-      ],
-      \"url\": \"https://fly-ee.github.io/web_program/\"
-    }]
-  }" \
-  ${{ secrets.WEBHOOK }}
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{
+              \"username\": \"updates i guess\",
+              \"embeds\": [{
+                \"title\": \"New push to ${GITHUB_REPOSITORY}\",
+                \"description\": \"**Commit:** [$COMMIT_ID](https://github.com/${GITHUB_REPOSITORY}/commit/$COMMIT_ID)\\n**Author:** ${AUTHOR_ESCAPED} \\n**Message:** ${MESSAGE_ESCAPED}\",
+                \"color\": 7506394,
+                \"fields\": [
+                  {
+                     \"name\": \"Diff\",
+                     \"value\": \"\`\`\`diff\n$(echo $PATCH | head -c 1900)\n\`\`\`\"
+                  }
+                ],
+                \"url\": \"https://fly-ee.github.io/web_program/\"
+              }]
+            }" \
+            ${{ secrets.WEBHOOK }}
             # idk how workflows work, so i asked chatgpt
