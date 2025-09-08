@@ -6,9 +6,10 @@ on:
 jobs:
   send-a-message:
     runs-on: ubuntu-latest
-    steps: |
-      name: send a test message
-        curl
+    steps:
+      - name: send a test message
+      - run: |
+          curl
           -X POST
           -H "Content-Type: application/json"
           -d '{"content":"test"}'
