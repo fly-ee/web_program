@@ -7,10 +7,13 @@ jobs:
   send-a-message:
     runs-on: ubuntu-latest
     steps:
-      - name: send a test message
-        run: |
-          curl \
-            -X POST \
+      - run: |
+          curl -X POST \
             -H "Content-Type: application/json" \
-            -d '{"content":"test"}' \
-            ${{ secrets.WEBHOOK }} \
+            -d '{
+              "embeds": [{
+                "title": "New push to ${{ github.repository }}",
+                "description": "**Commit:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n**Author:** ${{ github.actor }}\n**Message:** ${{ github.event.head_commit.message }}"
+              }]
+            }' \
+            ${{ secrets.WEBHOOK }}
