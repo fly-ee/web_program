@@ -12,13 +12,20 @@ jobs:
       - name: checkout thingy
         uses: actions/checkout@v4
 
-      - name: send the message e
+      - name: Send Discord webhook
         run: |
+          # Get commit info
           COMMIT_ID=$(git log -1 --pretty=format:"%H")
           AUTHOR=$(git log -1 --pretty=format:"%an")
           MESSAGE=$(git log -1 --pretty=format:"%s")
           PATCH=$(git show -1 --color=never --format= --unified=3 | head -c 1800)
 
+          # Ensure PATCH is never empty (Discord rejects empty field values)
+          if [ -z "$PATCH" ]; then
+            PATCH="(no changes to show)"
+          fi
+
+          # Build JSON safely with jq
           PAYLOAD=$(jq -n \
             --arg repo "$GITHUB_REPOSITORY" \
             --arg commit "$COMMIT_ID" \
@@ -43,8 +50,12 @@ jobs:
               ]
             }')
 
+          # Debug: show JSON before sending
+          echo "$PAYLOAD" | jq .
+
+          # Send webhook
           curl -H "Content-Type: application/json" \
                -X POST \
                -d "$PAYLOAD" \
                ${{ secrets.WEBHOOK }}
-            # idk how workflows work, so i asked chatgpt
+               # idk how workflows work, so i asked chatgpt
