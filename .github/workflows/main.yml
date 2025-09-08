@@ -9,8 +9,8 @@ jobs:
     steps:
       - name: send a test message
         run: |
-          curl
-            -X POST
-            -H \"Content-Type: application\/json\"
-            -d \'\{\"content\":\"test\"\}\'
-            ${{ secrets.WEBHOOK }}
+          curl \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"content\":"test"}' \
+            ${{ secrets.WEBHOOK }} \
