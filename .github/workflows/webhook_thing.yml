@@ -19,6 +19,9 @@ jobs:
 
       - name: send the message e
         run: |
+          AUTHOR=$(git log -1 --pretty=format:"%an")
+          MESSAGE=$(git log -1 --pretty=format:"%s")
+          
           AUTHOR_ESCAPED=$(echo "$AUTHOR" | jq -R .)
           MESSAGE_ESCAPED=$(echo "$MESSAGE" | jq -R .)
           PATCH_TRUNCATED=$(echo "$PATCH" | head -c 1900 | jq -Rs .)
