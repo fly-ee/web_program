@@ -15,7 +15,7 @@ jobs:
       - name: get some details
         run: |
           COMMITS=$(git log -1 --pretty=format:'%H|%an|%s')
-          echo "DIFF=$(git show --stat --oneline -1)" >> $GITHUB_ENV
+          DIFF=$(git show --stat --oneline -1)
           PATCH=$(git show -1 --color=never --format= --unified=3 | head -c 1900)
 
       - name: send the message e
