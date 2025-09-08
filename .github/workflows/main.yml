@@ -7,13 +7,19 @@ jobs:
   send-a-message:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: |
           curl -X POST \
             -H "Content-Type: application/json" \
             -d '{
               "embeds": [{
                 "title": "New push to ${{ github.repository }}",
-                "description": "**Commit:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n**Author:** ${{ github.actor }}\n**Message:** ${{ github.event.head_commit.message }}"
+                "description": "**Commit:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n**Author:** ${{ github.actor }}\n**Message:** ${{ github.event.head_commit.message }}",
+                "fields": [{
+                  "name": "Diff",
+                  "value": "```diff\n$(git show --oneline -1 --unified=3 --color=never | head -c 1800)\n```"
+                  }
+                ]
               }]
             }' \
             ${{ secrets.WEBHOOK }}
