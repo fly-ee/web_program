@@ -11,7 +11,6 @@ jobs:
     steps:
       - name: checkout thingy
         uses: actions/checkout@v4
-
       - name: get some details
         run: |
           COMMITS=$(git log -1 --pretty=format:'%H|%an|%s')
@@ -20,29 +19,26 @@ jobs:
 
       - name: send the message e
         run: |
-          COMMIT_ID=$(echo $COMMITS | cut -d'|' -f1)
-          AUTHOR=$(echo $COMMITS | cut -d'|' -f2)
-          MESSAGE=$(echo $COMMITS | cut -d'|' -f3)
+AUTHOR_ESCAPED=$(echo "$AUTHOR" | jq -R .)
+MESSAGE_ESCAPED=$(echo "$MESSAGE" | jq -R .)
+PATCH_TRUNCATED=$(echo "$PATCH" | head -c 1900 | jq -Rs .)
 
-          # Escape JSON (quotes/backslashes)
-          PATCH_ESCAPED=$(echo "$PATCH" | jq -Rs .)
-
-          curl -H "Content-Type: application/json" \
-            -X POST \
-            -d "{
-              \"username\": \"updates i guess\",
-              \"embeds\": [{
-                \"title\": \"New push to ${GITHUB_REPOSITORY}\",
-                \"description\": \"**Commit:** [$COMMIT_ID](https://github.com/${GITHUB_REPOSITORY}/commit/$COMMIT_ID)\\n**Author:** $AUTHOR\\n**Message:** $MESSAGE\",
-                \"color\": 7506394,
-                \"fields\": [
-                  {
-                    \"name\": \"Diff\",
-                    \"value\": \"\`\`\`diff\n$(echo $PATCH | head -c 1900)\n\`\`\`\"
-                  }
-                ],
-                \"url\": \"https://fly-ee.github.io/web_program/\"
-              }]
-            }" \
-            ${{ secrets.WEBHOOK }}
+curl -H "Content-Type: application/json" \
+-X POST \
+  -d "{
+    \"username\": \"updates i guess\",
+    \"embeds\": [{
+      \"title\": \"New push to ${GITHUB_REPOSITORY}\",
+      \"description\": \"**Commit:** [$COMMIT_ID](https://github.com/${GITHUB_REPOSITORY}/commit/$COMMIT_ID)\\n**Author:** ${AUTHOR_ESCAPED} \\n**Message:** ${MESSAGE_ESCAPED}\",
+      \"color\": 7506394,
+      \"fields\": [
+        {
+          \"name\": \"Diff\",
+          \"value\": \"\`\`\`diff\n$(echo $PATCH | head -c 1900)\n\`\`\`\"
+        }
+      ],
+      \"url\": \"https://fly-ee.github.io/web_program/\"
+    }]
+  }" \
+  ${{ secrets.WEBHOOK }}
             # idk how workflows work, so i asked chatgpt
