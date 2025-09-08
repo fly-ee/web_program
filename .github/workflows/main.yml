@@ -18,7 +18,7 @@ jobs:
                 "color": 7506394,
                 "fields": [{
                   "name": "Diff",
-                  "value": "```diff\n$(git show --oneline -1 --unified=3 --color=never | head -c 1800 | jq -Rs . | sed 's/^\"//;s/\"$//')\n```"
+                  "value": "```diff\n$(git show --oneline -1 --unified=3 --color=never | head -c 1800 | jq -Rs . | sed 's/^\"//;s/\"$//')\n```" \
                   }
                 ]
               }]
