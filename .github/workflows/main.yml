@@ -11,16 +11,17 @@ jobs:
       - run: |
           curl -X POST \
             -H "Content-Type: application/json" \
-            -d '{
-              "embeds": [{
-                "title": "New push to ${{ github.repository }}",
-                "description": "**Commit:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n**Author:** ${{ github.actor }}\n**Message:** ${{ github.event.head_commit.message }}",
-                "color": 7506394,
-                "fields": [{
-                  "name": "Diff",
-                  "value": "```diff\n$(git show --oneline -1 --unified=3 --color=never | head -c 1800 | jq -Rs . | sed 's/^\"//;s/\"$//')\n```"
-                  }
-                ]
+            -d "$(jq -n \
+                --arg repo "${{ github.repository }}" \
+                --arg sha "${{ github.sha }}" \
+                --arg actor "${{ github.actor }}" \
+                --arg msg "${{ github.event.head_commit.message }}" \
+                --arg diff "$(git show --oneline -1 --unified=3 --color=never | head -c 1800)" \
+            '{
+              embeds: [{
+                title: ("New push to " + $repo),
+                description: ("**Commit:** [" + $sha + "](https://github.com/" + $repo + "/commit/" + $sha + ")\n**Author:** " + $actor + "\n**Message:** " + $msg),
+                fields: [{ name: "Diff", value: ("```diff\n" + $diff + "\n```") }]
               }]
-            }' \
+            }')" \
             "${{ secrets.WEBHOOK }}"
