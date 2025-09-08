@@ -11,6 +11,6 @@ jobs:
         run: |
           curl
             -X POST
-            -H "Content-Type: application/json"
-            -d '{"content":"test"}'
+            -H \"Content-Type: application\/json\"
+            -d \'\{\"content\":\"test\"\}\'
             ${{ secrets.WEBHOOK }}
