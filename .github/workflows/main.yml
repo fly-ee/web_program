@@ -1,0 +1,27 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  send-a-message:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg repo "${{ github.repository }}" \
+              --arg sha "${{ github.sha }}" \
+              --arg actor "${{ github.actor }}" \
+              --arg msg "${{ github.event.head_commit.message }}" \
+              --arg diff "$(git show --oneline -1 --unified=3 --color=never | head -c 1800)" \
+              '{
+                embeds: [{
+                  title: ("New push to " + $repo),
+                  description: ("**Commit:** [" + $sha + "](https://github.com/" + $repo + "/commit/" + $sha + ")\n**Author:** " + $actor + "\n**Message:** " + $msg),
+                  fields: [{ name: "Diff", value: ("```diff\n" + $diff + "\n```") }]
+                }]
+              }')" \
+            "${{ secrets.WEBHOOK }}"
