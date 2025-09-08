@@ -1,4 +1,4 @@
-name: updates
+name: notify
 
 on:
   push:
@@ -11,37 +11,40 @@ jobs:
     steps:
       - name: checkout thingy
         uses: actions/checkout@v4
-      - name: get some details
-        run: |
-          COMMITS=$(git log -1 --pretty=format:'%H|%an|%s')
-          DIFF=$(git show --stat --oneline -1)
-          PATCH=$(git show -1 --color=never --format= --unified=3 | head -c 1900)
 
       - name: send the message e
         run: |
+          COMMIT_ID=$(git log -1 --pretty=format:"%H")
           AUTHOR=$(git log -1 --pretty=format:"%an")
           MESSAGE=$(git log -1 --pretty=format:"%s")
-          
-          AUTHOR_ESCAPED=$(echo "$AUTHOR" | jq -R .)
-          MESSAGE_ESCAPED=$(echo "$MESSAGE" | jq -R .)
-          PATCH_TRUNCATED=$(echo "$PATCH" | head -c 1900 | jq -Rs .)
+          PATCH=$(git show -1 --color=never --format= --unified=3 | head -c 1800)
+
+          PAYLOAD=$(jq -n \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg commit "$COMMIT_ID" \
+            --arg author "$AUTHOR" \
+            --arg message "$MESSAGE" \
+            --arg patch "$PATCH" \
+            '{
+              username: "updates i guess",
+              embeds: [
+                {
+                  title: ("New push to " + $repo),
+                  description: ("**Commit:** [" + $commit + "](https://github.com/" + $repo + "/commit/" + $commit + ")\n**Author:** " + $author + "\n**Message:** " + $message),
+                  color: 7506394,
+                  fields: [
+                    {
+                      name: "Diff",
+                      value: ("```diff\n" + $patch + "\n```")
+                    }
+                  ],
+                  url: "https://fly-ee.github.io/web_program/"
+                }
+              ]
+            }')
 
           curl -H "Content-Type: application/json" \
-            -X POST \
-            -d "{
-              \"username\": \"updates i guess\",
-              \"embeds\": [{
-                \"title\": \"New push to ${GITHUB_REPOSITORY}\",
-                \"description\": \"**Commit:** [$COMMIT_ID](https://github.com/${GITHUB_REPOSITORY}/commit/$COMMIT_ID)\\n**Author:** ${AUTHOR_ESCAPED} \\n**Message:** ${MESSAGE_ESCAPED}\",
-                \"color\": 7506394,
-                \"fields\": [
-                  {
-                     \"name\": \"Diff\",
-                     \"value\": \"\`\`\`diff\n$(echo $PATCH | head -c 1900)\n\`\`\`\"
-                  }
-                ],
-                \"url\": \"https://fly-ee.github.io/web_program/\"
-              }]
-            }" \
-            ${{ secrets.WEBHOOK }}
+               -X POST \
+               -d "$PAYLOAD" \
+               ${{ secrets.WEBHOOK }}
             # idk how workflows work, so i asked chatgpt
