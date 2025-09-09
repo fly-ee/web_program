@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           DIFF="$(git show --oneline -1 --unified=3 --color=never | head -c 1500)"
-          SAFE=$(printf "%s" "$DIFF" | tr -cd '[:alnum:][:space:]' | sed ':a;N;$!ba;s/\n/\\n/g')
+          SAFE=$(printf "%s" "$DIFF" | sed ':a;N;$!ba;s/\\/\\\\/g;s/"/\\"/g;s/\n/\\n/g')
 
           curl -X POST \
             -H "Content-Type: application/json" \
