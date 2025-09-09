@@ -9,10 +9,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
+          COMMIT_ID="${{ github.sha }}"
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          AUTHOR="${{ github.event.head_commit.author.name }}"
+          MESSAGE="${{ github.event.head_commit.message }}"
+
           DIFF="$(git show --oneline -1 --unified=3 --color=never | head -c 1500)"
           SAFE=$(printf "%s" "$DIFF" | sed ':a;N;$!ba;s/\\/\\\\/g;s/"/\\"/g;s/\n/\\n/g')
 
           curl -X POST \
             -H "Content-Type: application/json" \
-            -d "{\"content\":\"$SAFE\"}" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"New commit in ${{ github.repository }}\",
+                \"description\": \"**[${COMMIT_ID:0:7}]($COMMIT_URL)** - $MESSAGE\\nAuthor: $AUTHOR\",
+                \"color\": 3447003,
+                \"fields\": [{
+                  \"name\": \"Diff\",
+                  \"value\": \"\`\`\`diff\\n$SAFE\\n\`\`\`\"
+                }]
+              }]
+            }" \
             "${{ secrets.WEBHOOK }}"
