@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           DIFF="$(git show --oneline -1 --unified=3 --color=never | head -c 1500)"
-          DIFF_ESCAPED=$(printf "%s" "$DIFF" | sed 's/"/\\"/g')
+          DIFF_ESCAPED=$(printf "%s" "$DIFF" | sed ':a;N;$!ba;s/\n/\\n/g; s/"/\\"/g')
 
           curl -X POST \
             -H "Content-Type: application/json" \
@@ -20,7 +20,7 @@ jobs:
                 \"description\": \"**Commit:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\\n**Author:** ${{ github.actor }}\\n**Message:** ${{ github.event.head_commit.message }}\",
                 \"fields\": [{
                   \"name\": \"Diff\",
-                  \"value\": \"\`\`\`diff\n$DIFF_ESCAPED\n\`\`\`\"
+                  \"value\": \"\`\`\`diff\\n$DIFF_ESCAPED\\n\`\`\`\"
                 }]
               }]
             }" \
