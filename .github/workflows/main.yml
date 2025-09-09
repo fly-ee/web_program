@@ -9,20 +9,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          DIFF=$(git show --oneline -1 --unified=3 --color=never | head -c 1800)
-          jq -n \
-            --arg repo "${{ github.repository }}" \
-            --arg sha "${{ github.sha }}" \
-            --arg actor "${{ github.actor }}" \
-            --arg msg "${{ github.event.head_commit.message }}" \
-            --arg diff "$DIFF" \
-            '{
-              embeds: [{
-                title: ("New push to " + $repo),
-                description: ("**Commit:** [" + $sha + "](https://github.com/" + $repo + "/commit/" + $sha + ")\n**Author:** " + $actor + "\n**Message:** " + $msg),
-                fields: [{ name: "Diff", value: ("```diff\n" + $diff + "\n```") }]
+          DIFF=$(git show --oneline -1 --unified=3 --color=never | head -c 1800 | base64 -w0)
+
+          echo '{
+            "embeds": [{
+              "title": "New push to '"${GITHUB_REPOSITORY}"'",
+              "description": "**Commit:** ['"${GITHUB_SHA}"'](https://github.com/'"${GITHUB_REPOSITORY}"'/commit/'"${GITHUB_SHA}"')\n**Author:** '"${GITHUB_ACTOR}"'\n**Message:** '"${{ github.event.head_commit.message }}"'",
+              "fields": [{
+                "name": "Diff",
+                "value": "```diff\n'$(echo "$DIFF" | base64 -d)'```"
               }]
-            }' > payload.json
+            }]
+          }' > payload.json
 
           curl -X POST \
             -H "Content-Type: application/json" \
