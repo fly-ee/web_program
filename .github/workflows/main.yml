@@ -9,20 +9,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          DIFF=$(git show --oneline -1 --unified=3 --color=never | head -c 1800 | base64 -w0)
-
-          echo '{
-            "embeds": [{
-              "title": "New push to '"${GITHUB_REPOSITORY}"'",
-              "description": "**Commit:** ['"${GITHUB_SHA}"'](https://github.com/'"${GITHUB_REPOSITORY}"'/commit/'"${GITHUB_SHA}"')\n**Author:** '"${GITHUB_ACTOR}"'\n**Message:** '"${{ github.event.head_commit.message }}"'",
-              "fields": [{
-                "name": "Diff",
-                "value": "```diff\n'$(echo "$DIFF" | base64 -d)'```"
-              }]
-            }]
-          }' > payload.json
+          DIFF="$(git show --oneline -1 --unified=3 --color=never | head -c 1500)"
+          DIFF_ESCAPED=$(printf "%s" "$DIFF" | sed 's/"/\\"/g')
 
           curl -X POST \
             -H "Content-Type: application/json" \
-            -d @payload.json \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"New push to ${{ github.repository }}\",
+                \"description\": \"**Commit:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\\n**Author:** ${{ github.actor }}\\n**Message:** ${{ github.event.head_commit.message }}\",
+                \"fields\": [{
+                  \"name\": \"Diff\",
+                  \"value\": \"\`\`\`diff\n$DIFF_ESCAPED\n\`\`\`\"
+                }]
+              }]
+            }" \
             "${{ secrets.WEBHOOK }}"
